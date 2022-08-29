@@ -16,10 +16,9 @@ class DuneAPI(object):
         self.client = httpx.Client(headers=self.headers)
 
     def execute_query(self, query_id: int, query_params: Dict = {}) -> Dict:
-        body = {}
+        body = None
         if query_params:
-            body["query_parameters"] = query_params
-
+            body = { "query_parameters": query_params }
         resp = self.client.post(f"{URL}/v1/query/{query_id}/execute", json=body)
         assert resp.is_success
         return resp.json()
@@ -51,7 +50,7 @@ class DuneAPI(object):
                 "QUERY_STATE_CANCELLED",
             )
             status = self.get_execution_status(execution_id)
-            state = status["status"]  # FIXME bad field name
+            state = status["state"]
             if state in terminal_states:
                 if state == "QUERY_STATE_COMPLETED":
                     row_count = status["result_metadata"]["total_row_count"]
@@ -79,8 +78,8 @@ def execute_query_and_get_results(query_id: int, api_key: str) -> List[Dict]:
     status = dune.wait_for_execution_end(execution_id)
     print(f"QueryID: {query_id}, finished, status: {status}")
     resp = dune.get_execution_result(execution_id)
-    if resp["status"] == "QUERY_STATE_COMPLETED":
-        rows = resp["result"]["payload"]
+    if resp["state"] == "QUERY_STATE_COMPLETED":
+        rows = resp["result"]["rows"]
         metadata = resp["result"]["metadata"]
         print(f"QueryID: {query_id}, result metadata: {metadata}")
         assert len(rows) == metadata['total_row_count']
