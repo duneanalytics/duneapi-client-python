@@ -5,6 +5,15 @@ import time
 
 import httpx
 
+"""
+This is an example showcase of using the Dune API to execute easily a known Query ID
+This code is not meant for production use, for example, very basic or missing error handling.
+
+example of usage:
+$  DUNE_API_KEY='your-key'  python duneapi.py 1105134
+"""
+
+
 
 URL = "https://api.dune.com/api"
 
